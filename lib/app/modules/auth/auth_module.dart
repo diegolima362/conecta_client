@@ -29,7 +29,6 @@ class AuthModule extends Module {
 
     // usecases
     Bind.singleton((i) => GetLoggedUser(i()), export: true),
-    Bind.singleton((i) => GetUserToken(i())),
 
     Bind.singleton((i) => SignInWithUserAndPassword(i())),
     Bind.singleton((i) => SignUp(i())),

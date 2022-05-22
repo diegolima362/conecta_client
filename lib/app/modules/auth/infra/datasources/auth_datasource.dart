@@ -16,6 +16,4 @@ abstract class IAuthDatasource {
   Future<Unit> logout();
 
   Option<String> getUserToken();
-
-  Future<Option<String>> refreshToken();
 }

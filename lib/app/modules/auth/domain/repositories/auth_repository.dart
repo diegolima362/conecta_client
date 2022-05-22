@@ -11,7 +11,5 @@ abstract class IAuthRepository {
 
   Future<EitherLoggedInfo> loggedUser();
 
-  Future<EitherToken> getUserToken({bool refresh = false});
-
   Future<EitherLoggedInfo> logout();
 }

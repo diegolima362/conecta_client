@@ -10,12 +10,45 @@ import 'adapters/secure_storage.dart';
 import 'utils/api_paths.dart' as api;
 
 class AuthDatasource implements IAuthDatasource {
-  final Dio dio;
+  final Dio client;
   final SecureStorage storage;
 
-  AuthDatasource(this.dio, this.storage);
-
   Option<UserModel> _user = none();
+
+  String accessToken = '';
+
+  AuthDatasource(this.client, this.storage) {
+    configureClient();
+  }
+
+  Future<void> configureClient() async {
+    final user = (await getCurrentUser()).toNullable();
+
+    if (user == null) {
+      return;
+    }
+
+    client.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          if (!options.path.contains('http')) {
+            options.path = '${api.base}${options.path}';
+          }
+
+          options.headers['Authorization'] = 'Bearer ${user.accessToken}';
+
+          return handler.next(options);
+        },
+        onError: (error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await refreshToken();
+          }
+
+          return handler.next(error);
+        },
+      ),
+    );
+  }
 
   @override
   Future<Option<UserModel>> getCurrentUser() async {
@@ -28,45 +61,43 @@ class AuthDatasource implements IAuthDatasource {
     );
   }
 
-  @override
   Future<Option<String>> refreshToken() async {
-    final result = await getCurrentUser();
+    final user = (await getCurrentUser()).toNullable();
 
-    return result.match(
-      (user) async {
-        try {
-          final response = await dio.get(
-            api.urlRefreshToken,
-            options: Options(headers: {
-              'Authorization': 'Bearer ${user.refreshToken}',
-            }),
-          );
+    if (user == null) {
+      return none();
+    }
 
-          final data = response.data;
+    try {
+      final response = await client.get(
+        api.urlRefreshToken,
+        options: Options(headers: {
+          'Authorization': 'Bearer ${user.refreshToken}',
+        }),
+      );
 
-          if (response.statusCode != 200) {
-            throw ErrorGetToken(message: 'Não foi possivel atualizar o token.');
-          }
+      final data = response.data;
 
-          final token = data['access_token'] ?? '';
-          final refresh = data['refresh_token'] ?? '';
+      if (response.statusCode != 200) {
+        await signInWithUserAndPassword(user.username, user.password);
+      }
 
-          final u = user.copyWith(
-            accessToken: token,
-            refreshToken: refresh,
-          );
+      final token = data['access_token'] ?? '';
+      final refresh = data['refresh_token'] ?? '';
 
-          await storage.saveUser(u);
+      final u = user.copyWith(
+        accessToken: token,
+        refreshToken: refresh,
+      );
 
-          return some(token);
-        } on AuthFailure catch (e) {
-          throw ErrorRefreshToken(
-            message: 'Erro ao atualizar token: ${e.message}',
-          );
-        }
-      },
-      none,
-    );
+      await storage.saveUser(u);
+
+      return some(token);
+    } on AuthFailure catch (e) {
+      throw ErrorRefreshToken(
+        message: 'Erro ao atualizar token: ${e.message}',
+      );
+    }
   }
 
   @override
@@ -77,7 +108,7 @@ class AuthDatasource implements IAuthDatasource {
     try {
       final options = userInfo.toApiMap();
 
-      final response = await dio.post(api.urlSignUp, data: options);
+      final response = await client.post(api.urlSignUp, data: options);
 
       final data = response.data;
 
@@ -106,7 +137,7 @@ class AuthDatasource implements IAuthDatasource {
         'password': password,
       });
 
-      final response = await dio.post(api.urlSignIn, data: formData);
+      final response = await client.post(api.urlSignIn, data: formData);
 
       final data = response.data;
 
@@ -117,7 +148,7 @@ class AuthDatasource implements IAuthDatasource {
       var accessToken = data['access_token'] ?? '';
       var refreshToken = data['refresh_token'] ?? '';
 
-      final info = await dio.get(
+      final info = await client.get(
         api.urlUserInfo,
         options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
@@ -131,8 +162,11 @@ class AuthDatasource implements IAuthDatasource {
 
       _user = some(loggedUser);
 
+      await configureClient();
+
       return loggedUser;
-    } on DioError {
+    } on DioError catch (e) {
+      debugPrint(e.response?.data.toString());
       throw ErrorWrongCrendentials(message: 'Usuário ou senha inválidos');
     }
   }

@@ -44,22 +44,6 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<EitherToken> getUserToken({bool refresh = false}) async {
-    try {
-      Option<String> result;
-      if (refresh || dataSource.getUserToken().isNone()) {
-        result = await dataSource.refreshToken();
-      } else {
-        result = dataSource.getUserToken();
-      }
-
-      return Right(result);
-    } on AuthFailure catch (e) {
-      return Left(e);
-    }
-  }
-
-  @override
   Future<EitherLoggedInfo> logout() async {
     try {
       await dataSource.logout();
