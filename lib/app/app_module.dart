@@ -1,0 +1,46 @@
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:modular_triple_bind/modular_triple_bind.dart';
+
+import 'core/core_module.dart';
+import 'modules/auth/auth_module.dart';
+import 'modules/home/home_page.dart';
+import 'modules/preferences/preferences_module.dart';
+import 'modules/profile/profile_page.dart';
+import 'modules/profile/profile_store.dart';
+import 'modules/root/root_page.dart';
+import 'modules/root/root_store.dart';
+
+class AppModule extends Module {
+  @override
+  List<Module> get imports => [
+        CoreModule(),
+        PreferencesModule(),
+        AuthModule(),
+      ];
+
+  @override
+  List<Bind> get binds => [
+        TripleBind.singleton((i) => RootStore()),
+        TripleBind.singleton((i) => ProfileStore(i())),
+      ];
+
+  @override
+  final List<ModularRoute> routes = [
+    ModuleRoute(Modular.initialRoute, module: CoreModule()),
+    ModuleRoute('/auth/', module: AuthModule()),
+    ChildRoute(
+      '/app/',
+      child: (context, args) => const RootPage(),
+      children: [
+        ChildRoute(
+          '/home/',
+          child: (context, args) => const HomePage(),
+        ),
+        ChildRoute(
+          '/profile/',
+          child: (context, args) => const ProfilePage(),
+        ),
+      ],
+    ),
+  ];
+}
