@@ -14,8 +14,6 @@ class SignUpPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final store = Modular.get<LoginStore>();
-
     final emailController = useTextEditingController();
     final emailFocus = useFocusNode();
 
@@ -57,7 +55,7 @@ class SignUpPage extends HookWidget {
         dob: dobController.value,
       );
 
-      store.signUp(user);
+      Modular.get<LoginStore>().signUp(user);
     }
 
     return WillPopScope(

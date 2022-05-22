@@ -19,7 +19,7 @@ class SecureStorage {
   }
 
   Future<Unit> clear() async {
-    await storage.remove('user');
+    await storage.clear();
     return unit;
   }
 }

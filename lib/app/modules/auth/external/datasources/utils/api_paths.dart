@@ -4,6 +4,6 @@ const urlSignIn = '$base/login';
 
 const urlSignUp = '$base/register';
 
-const urlRefreshToken = '$base/token/refresh/';
+const urlRefreshToken = '$base/token/refresh';
 
-const urlUserInfo = '$base/users/me/';
+const urlUserInfo = '$base/users/me';

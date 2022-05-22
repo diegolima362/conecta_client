@@ -15,8 +15,6 @@ class AuthDatasource implements IAuthDatasource {
 
   Option<UserModel> _user = none();
 
-  String accessToken = '';
-
   AuthDatasource(this.client, this.storage) {
     configureClient();
   }
@@ -174,6 +172,8 @@ class AuthDatasource implements IAuthDatasource {
   @override
   Future<Unit> logout() async {
     await storage.clear();
+
+    client.interceptors.clear();
 
     _user = none();
 
