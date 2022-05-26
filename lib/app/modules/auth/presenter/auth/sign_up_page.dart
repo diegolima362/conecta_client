@@ -14,6 +14,8 @@ class SignUpPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+
     final emailController = useTextEditingController();
     final emailFocus = useFocusNode();
 
@@ -38,20 +40,24 @@ class SignUpPage extends HookWidget {
     const lastIndex = 2;
 
     void updateState() {
-      filled.value = nameController.text.isNotEmpty &&
-          usernameController.text.isNotEmpty &&
-          emailController.text.isNotEmpty &&
-          passwordController.text.isNotEmpty &&
-          confirmPasswordController.text.isNotEmpty &&
+      formKey.currentState?.validate();
+
+      filled.value = nameController.text.trim().isNotEmpty &&
+          usernameController.text.trim().isNotEmpty &&
+          emailController.text.trim().isNotEmpty &&
+          emailController.text.trim().isEmail &&
+          passwordController.text.trim().isNotEmpty &&
+          passwordController.text.trim().length >= 8 &&
+          confirmPasswordController.text.trim().isNotEmpty &&
           (passwordController.text == confirmPasswordController.text);
     }
 
     void createUseFromState() {
       final user = UserInfo(
-        name: nameController.text,
-        username: usernameController.text,
-        email: emailController.text,
-        password: passwordController.text,
+        name: nameController.text.trim(),
+        username: usernameController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
         dob: dobController.value,
       );
 
@@ -81,190 +87,239 @@ class SignUpPage extends HookWidget {
             ),
           ),
           SingleChildScrollView(
-            child: Stepper(
-              currentStep: index.value,
-              controlsBuilder: (_, details) {
-                return Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: details.onStepCancel,
-                        child: Text(
-                            details.stepIndex == 0 ? 'Cancelar' : 'Voltar'),
+            child: Form(
+              key: formKey,
+              child: Stepper(
+                currentStep: index.value,
+                controlsBuilder: (_, details) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: details.stepIndex == 0
+                              ? null
+                              : details.onStepCancel,
+                          child: const Text('Voltar'),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: details.stepIndex == lastIndex
-                          ? FilledButton(
-                              context,
-                              onPressed: filled.value
-                                  ? () => createUseFromState()
-                                  : null,
-                              child: const Text('Cadastrar-se'),
-                            )
-                          : OutlinedButton(
-                              onPressed: details.onStepContinue,
-                              child: const Text('Próximo'),
-                            ),
-                    ),
-                  ],
-                );
-              },
-              onStepContinue: () async {
-                if (index.value == lastIndex) {
-                  createUseFromState();
-                } else {
-                  index.value++;
-                }
-              },
-              onStepCancel: () => index.value == 0
-                  ? Navigator.of(context).pop()
-                  : index.value--,
-              onStepTapped: (i) => index.value = i,
-              steps: [
-                Step(
-                  isActive: index.value >= 0,
-                  title: const Text('Informações'),
-                  state:
-                      index.value > 0 ? StepState.complete : StepState.indexed,
-                  content: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          decoration: const InputDecoration(labelText: 'Nome'),
-                          controller: nameController,
-                          focusNode: nameFocus,
-                          keyboardType: TextInputType.name,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (_) => updateState(),
-                          onEditingComplete: () =>
-                              FocusScope.of(context).requestFocus(emailFocus),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16, bottom: 4),
-                          child: Text(
-                            'Data de nascimento',
-                            style: context.textTheme.labelMedium,
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              useRootNavigator: false,
-                              initialDate: dobController.value,
-                              firstDate: DateTime(0),
-                              lastDate: DateTime.now(),
-                              initialEntryMode: DatePickerEntryMode.calendar,
-                            );
-                            if (picked != null) {
-                              dobController.value = picked;
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Theme.of(context).dividerColor,
-                                  width: 2,
-                                ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: details.stepIndex == lastIndex
+                            ? FilledButton(
+                                context,
+                                onPressed: filled.value
+                                    ? () => createUseFromState()
+                                    : null,
+                                child: const Text('Cadastrar-se'),
+                              )
+                            : OutlinedButton(
+                                onPressed: details.onStepContinue,
+                                child: const Text('Próximo'),
                               ),
+                      ),
+                    ],
+                  );
+                },
+                onStepContinue: () async {
+                  if (index.value == lastIndex) {
+                    createUseFromState();
+                  } else {
+                    index.value++;
+                  }
+                },
+                onStepCancel: () => index.value == 0
+                    ? Navigator.of(context).pop()
+                    : index.value--,
+                onStepTapped: (i) => index.value = i,
+                steps: [
+                  Step(
+                    isActive: index.value >= 0,
+                    title: const Text('Informações'),
+                    state: index.value > 0
+                        ? nameController.text.trim().isEmpty
+                            ? StepState.error
+                            : StepState.complete
+                        : StepState.indexed,
+                    content: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            decoration:
+                                const InputDecoration(labelText: 'Nome'),
+                            controller: nameController,
+                            focusNode: nameFocus,
+                            keyboardType: TextInputType.name,
+                            textInputAction: TextInputAction.next,
+                            validator: (text) {
+                              if (text?.trim().isEmpty ?? false) {
+                                return 'Informe seu nome!';
+                              }
+                              return null;
+                            },
+                            onChanged: (_) => updateState(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16, bottom: 4),
+                            child: Text(
+                              'Data de nascimento',
+                              style: context.textTheme.labelMedium,
                             ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    dobController.value.simpleDate
-                                        .toUpperCase(),
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: context,
+                                useRootNavigator: false,
+                                initialDate: dobController.value,
+                                firstDate: DateTime(0),
+                                lastDate: DateTime.now(),
+                                initialEntryMode: DatePickerEntryMode.calendar,
+                              );
+                              if (picked != null) {
+                                dobController.value = picked;
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Theme.of(context).dividerColor,
+                                    width: 2,
                                   ),
                                 ),
-                                const Icon(Icons.calendar_month),
-                              ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      dobController.value.simpleDate
+                                          .toUpperCase(),
+                                    ),
+                                  ),
+                                  const Icon(Icons.calendar_month),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Step(
-                  isActive: index.value >= 1,
-                  title: const Text('Login'),
-                  state:
-                      index.value > 1 ? StepState.complete : StepState.indexed,
-                  content: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'Nome de usuário',
+                  Step(
+                    isActive: index.value >= 1,
+                    title: const Text('Login'),
+                    state: index.value > 1
+                        ? usernameController.text.trim().isEmpty ||
+                                !usernameController.text.trim().isEmail
+                            ? StepState.error
+                            : StepState.complete
+                        : StepState.indexed,
+                    content: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Nome de usuário',
+                            ),
+                            controller: usernameController,
+                            focusNode: usernameFocus,
+                            textInputAction: TextInputAction.next,
+                            keyboardType: TextInputType.name,
+                            onChanged: (_) => updateState(),
+                            validator: (text) {
+                              if (text?.trim().isEmpty ?? false) {
+                                return 'Informe seu nome de usuário!';
+                              }
+                              return null;
+                            },
+                            onEditingComplete: () =>
+                                FocusScope.of(context).requestFocus(emailFocus),
                           ),
-                          controller: usernameController,
-                          focusNode: usernameFocus,
-                          textInputAction: TextInputAction.next,
-                          keyboardType: TextInputType.name,
-                          onChanged: (_) => updateState(),
-                          onEditingComplete: () => FocusScope.of(context)
-                              .requestFocus(passwordFocus),
-                        ),
-                        TextFormField(
-                          decoration: const InputDecoration(labelText: 'Email'),
-                          controller: emailController,
-                          focusNode: emailFocus,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          onEditingComplete: () => index.value = index.value++,
-                        ),
-                      ],
+                          TextFormField(
+                            decoration:
+                                const InputDecoration(labelText: 'Email'),
+                            controller: emailController,
+                            focusNode: emailFocus,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            onChanged: (_) => updateState(),
+                            onEditingComplete: () {
+                              index.value = index.value++;
+                            },
+                            validator: (text) {
+                              if (text != null &&
+                                  text.trim().isNotEmpty &&
+                                  !text.isEmail) {
+                                return 'Email Inválido';
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Step(
-                  isActive: index.value >= 2,
-                  title: const Text('Senha'),
-                  state:
-                      index.value > 2 ? StepState.complete : StepState.indexed,
-                  content: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          decoration: const InputDecoration(labelText: 'Senha'),
-                          obscureText: true,
-                          controller: passwordController,
-                          focusNode: passwordFocus,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (_) => updateState(),
-                          onEditingComplete: () => FocusScope.of(context)
-                              .requestFocus(confirmPasswordFocus),
-                        ),
-                        TextFormField(
-                          decoration: const InputDecoration(
-                              labelText: 'Confirmar a senha'),
-                          obscureText: true,
-                          controller: confirmPasswordController,
-                          focusNode: confirmPasswordFocus,
-                          textInputAction: TextInputAction.done,
-                          validator: (text) {
-                            return text == passwordController.text
-                                ? null
-                                : 'Senhas Diferentes!';
-                          },
-                          onChanged: (_) => updateState(),
-                          onEditingComplete: () => createUseFromState(),
-                        ),
-                      ],
+                  Step(
+                    isActive: index.value >= 2,
+                    title: const Text('Senha'),
+                    state: index.value > 2
+                        ? StepState.complete
+                        : StepState.indexed,
+                    content: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            decoration:
+                                const InputDecoration(labelText: 'Senha'),
+                            obscureText: true,
+                            controller: passwordController,
+                            focusNode: passwordFocus,
+                            textInputAction: TextInputAction.next,
+                            onChanged: (_) => updateState(),
+                            validator: (text) {
+                              if (text != null &&
+                                  text.trim().isNotEmpty &&
+                                  text.length < 8) {
+                                return 'Senha deve ter pelo menos 8 digitos';
+                              }
+                              return null;
+                            },
+                            onEditingComplete: () => FocusScope.of(context)
+                                .requestFocus(confirmPasswordFocus),
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                                labelText: 'Confirmar a senha'),
+                            obscureText: true,
+                            controller: confirmPasswordController,
+                            focusNode: confirmPasswordFocus,
+                            textInputAction: TextInputAction.done,
+                            validator: (text) {
+                              if (text != null &&
+                                  text.trim().isNotEmpty &&
+                                  text != passwordController.text) {
+                                return 'Senha devem ser iguais!';
+                              }
+                              return null;
+                            },
+                            onChanged: (_) {
+                              updateState();
+                            },
+                            onEditingComplete: () => createUseFromState(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Center(

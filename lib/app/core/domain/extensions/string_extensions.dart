@@ -35,6 +35,13 @@ extension StringFormater on String {
 
   String get capitalFirst =>
       isEmpty ? this : "${this[0].toUpperCase()}${substring(1)}";
+
+  bool get isEmail {
+    const pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+    final regExp = RegExp(pattern);
+
+    return isNotEmpty && regExp.hasMatch(this);
+  }
 }
 
 extension TimeStamp on String {

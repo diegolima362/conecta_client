@@ -23,23 +23,31 @@ class AuthPage extends HookWidget {
           children: [
             ArticleContent(
               maxWidth: constraints.isMobile ? constraints.maxWidth : 600,
-              child: Card(
-                color: context.colors.surfaceVariant.withAlpha(75),
-                margin: const EdgeInsets.all(24),
-                child: SignInPage(
-                  onPageChanged: () => controller.animateTo(1),
-                ),
-              ),
+              child: constraints.isMobile
+                  ? SignInPage(
+                      onPageChanged: () => controller.animateTo(1),
+                    )
+                  : Card(
+                      color: context.colors.surfaceVariant.withAlpha(75),
+                      margin: const EdgeInsets.all(24),
+                      child: SignInPage(
+                        onPageChanged: () => controller.animateTo(1),
+                      ),
+                    ),
             ),
             ArticleContent(
               maxWidth: constraints.isMobile ? constraints.maxWidth : 600,
-              child: Card(
-                margin: const EdgeInsets.all(24),
-                color: context.colors.surfaceVariant.withAlpha(75),
-                child: SignUpPage(
-                  onPageChanged: () => controller.animateTo(0),
-                ),
-              ),
+              child: constraints.isMobile
+                  ? SignUpPage(
+                      onPageChanged: () => controller.animateTo(0),
+                    )
+                  : Card(
+                      margin: const EdgeInsets.all(24),
+                      color: context.colors.surfaceVariant.withAlpha(75),
+                      child: SignUpPage(
+                        onPageChanged: () => controller.animateTo(0),
+                      ),
+                    ),
             ),
           ],
         ),

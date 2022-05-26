@@ -68,6 +68,7 @@ class SignInPage extends HookWidget {
               ),
               obscureText: !showPwd.value,
               controller: pwdController,
+              focusNode: pwdFocus,
               textInputAction: TextInputAction.done,
               onChanged: (_) => filled.value = userController.text.isNotEmpty &&
                   pwdController.text.isNotEmpty,
