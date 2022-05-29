@@ -1,6 +1,5 @@
 import 'package:conecta/app/core/core_module.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:modular_triple_bind/modular_triple_bind.dart';
 
 import 'domain/usecases/usecases.dart';
@@ -18,7 +17,6 @@ class AuthModule extends Module {
 
   @override
   final List<Bind> binds = [
-    Bind.lazySingleton((i) => const FlutterSecureStorage(), export: true),
     Bind.lazySingleton((i) => SecureStorage(i()), export: true),
 
     // datasources
