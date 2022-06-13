@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
 
 import '../stores/prefs_store.dart';
@@ -402,7 +402,7 @@ class AppTheme {
       radioTheme: RadioThemeData(
         fillColor: MaterialStateProperty.resolveWith((_) => scheme.secondary),
       ),
-      textTheme: GoogleFonts.montserratTextTheme(),
+      // textTheme: GoogleFonts.montserratTextTheme(),
     );
   }
 }

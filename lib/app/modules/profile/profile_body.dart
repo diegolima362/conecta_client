@@ -16,6 +16,9 @@ class ProfileBody extends StatelessWidget {
         _ProfileCardItem(text: 'Usuário', value: profile.username),
         const SizedBox(height: 8),
         _ProfileCardItem(text: 'Email', value: profile.email),
+        const SizedBox(height: 8),
+        if (profile.admin)
+          const _ProfileCardItem(text: 'Professor', value: '👑'),
       ],
     );
   }

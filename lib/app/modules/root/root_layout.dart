@@ -14,7 +14,6 @@ class RootLayout extends StatelessWidget {
   final Widget child;
   final int currentIndex;
   static const _switcherKey = ValueKey('switcherKey');
-  static const _navigationRailKey = ValueKey('navigationRailKey');
 
   @override
   Widget build(BuildContext context) {
@@ -24,19 +23,6 @@ class RootLayout extends StatelessWidget {
       valueListenable: store.selectState,
       builder: (context, state, _) => LayoutBuilder(
         builder: (context, dimens) {
-          void onSelected(int index) {
-            store.setIndex(index);
-            if (index == 0) {
-              Modular.to.navigate('/app/home/');
-            } else if (index == 1) {
-              Modular.to.navigate('/app/mural/');
-            } else if (index == 2) {
-              Modular.to.navigate('/app/atividades/');
-            } else if (index == 3) {
-              Modular.to.navigate('/app/preferences/');
-            }
-          }
-
           //    return AdaptiveNavigation(
           //   key: _navigationRailKey,
           //   destinations: destinations

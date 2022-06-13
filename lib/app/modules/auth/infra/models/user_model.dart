@@ -12,6 +12,7 @@ class UserModel extends UserEntity {
     required super.name,
     required super.email,
     required super.username,
+    required super.admin,
     required this.password,
     required this.accessToken,
     required this.refreshToken,
@@ -27,6 +28,7 @@ class UserModel extends UserEntity {
     String? password,
     String? accessToken,
     String? refreshToken,
+    bool? admin,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -36,6 +38,7 @@ class UserModel extends UserEntity {
       password: password ?? this.password,
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
+      admin: admin ?? this.admin,
     );
   }
 
@@ -48,6 +51,7 @@ class UserModel extends UserEntity {
       'password': password,
       'accessToken': accessToken,
       'refreshToken': refreshToken,
+      'admin': admin,
     };
   }
 
@@ -60,6 +64,7 @@ class UserModel extends UserEntity {
       password: map['password'] ?? '',
       accessToken: map['accessToken'] ?? '',
       refreshToken: map['refreshToken'] ?? '',
+      admin: map['admin'] ?? false,
     );
   }
 
@@ -69,9 +74,7 @@ class UserModel extends UserEntity {
       UserModel.fromMap(json.decode(source));
 
   @override
-  String toString() {
-    return 'UserModel(id: $id, name: $name, username: $username, email: $email)';
-  }
+  String toString() => toJson();
 
   @override
   bool operator ==(Object other) {
@@ -84,6 +87,7 @@ class UserModel extends UserEntity {
         other.email == email &&
         other.password == password &&
         other.accessToken == accessToken &&
+        other.admin == admin &&
         other.refreshToken == refreshToken;
   }
 
@@ -95,6 +99,7 @@ class UserModel extends UserEntity {
         email.hashCode ^
         password.hashCode ^
         accessToken.hashCode ^
+        admin.hashCode ^
         refreshToken.hashCode;
   }
 }

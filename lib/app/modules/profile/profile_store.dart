@@ -1,4 +1,3 @@
-import 'package:conecta/app/core/external/drivers/fpdart_either_adapter.dart';
 import 'package:conecta/app/modules/auth/domain/entities/user_entity.dart';
 import 'package:conecta/app/modules/auth/domain/errors/errors.dart';
 import 'package:conecta/app/modules/auth/domain/usecases/get_logged_user.dart';
@@ -10,8 +9,17 @@ class ProfileStore extends NotifierStore<AuthFailure, Option<UserEntity>> {
 
   ProfileStore(this.usecase) : super(none());
 
-  Unit getData() {
-    executeEither(() => FpdartEitherAdapter.adapter(usecase()));
+  Future<Unit> getData() async {
+    update(none());
+
+    setLoading(true);
+
+    final result = await usecase();
+
+    setLoading(false);
+
+    result.fold(setError, update);
+
     return unit;
   }
 }

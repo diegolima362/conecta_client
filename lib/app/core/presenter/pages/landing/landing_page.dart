@@ -13,7 +13,7 @@ class LandingPage extends StatelessWidget {
       FlutterNativeSplash.remove();
 
       if (authStore.isLogged) {
-        Modular.to.navigate('/app/profile/');
+        Modular.to.navigate('/app/home/');
         // Modular.to.navigate('/durations/');
       } else {
         Modular.to.navigate('/auth/');

@@ -3,7 +3,9 @@ import 'package:modular_triple_bind/modular_triple_bind.dart';
 
 import 'core/core_module.dart';
 import 'modules/auth/auth_module.dart';
+import 'modules/courses/courses_module.dart';
 import 'modules/home/home_page.dart';
+import 'modules/home/home_store.dart';
 import 'modules/preferences/preferences_module.dart';
 import 'modules/profile/profile_page.dart';
 import 'modules/profile/profile_store.dart';
@@ -15,6 +17,7 @@ class AppModule extends Module {
   List<Module> get imports => [
         CoreModule(),
         PreferencesModule(),
+        CoursesModule(),
         AuthModule(),
       ];
 
@@ -22,6 +25,7 @@ class AppModule extends Module {
   List<Bind> get binds => [
         TripleBind.singleton((i) => RootStore()),
         TripleBind.singleton((i) => ProfileStore(i())),
+        TripleBind.singleton((i) => HomeStore(i())),
       ];
 
   @override
@@ -36,6 +40,7 @@ class AppModule extends Module {
           '/home/',
           child: (context, args) => const HomePage(),
         ),
+        ModuleRoute('/courses/', module: CoursesModule()),
         ChildRoute(
           '/profile/',
           child: (context, args) => const ProfilePage(),
