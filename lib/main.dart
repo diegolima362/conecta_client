@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_triple/flutter_triple.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hydrated_triple/hydrated_triple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,7 +11,6 @@ import 'app/app_widget.dart';
 const debugLayoutMode = false;
 
 late final SharedPreferences prefs;
-late final Box box;
 
 Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -43,10 +41,6 @@ Future<void> main() async {
 
 Future<void> initialization() async {
   prefs = await SharedPreferences.getInstance();
-
-  await Hive.initFlutter();
-
-  box = await Hive.openBox('courses');
 
   setTripleHydratedDelegate(SharedPreferencesHydratedDelegate());
 }

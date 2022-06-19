@@ -31,7 +31,7 @@ class CourseCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Text(
-                course.professor,
+                course.professorName,
                 overflow: TextOverflow.ellipsis,
                 style: context.bodySmall,
                 maxLines: 2,

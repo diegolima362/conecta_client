@@ -41,7 +41,7 @@ class CourseHomeCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(course.name, style: textTheme.bodyLarge),
-                        Text(course.professor, style: textTheme.bodyMedium),
+                        Text(course.professorName, style: textTheme.bodyMedium),
                       ],
                     ),
                   ),

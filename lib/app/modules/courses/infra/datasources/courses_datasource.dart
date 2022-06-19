@@ -12,4 +12,18 @@ abstract class ICoursesLocalDatasource extends ICoursesDatasource {
   Future<Unit> clearData();
 }
 
-abstract class ICoursesRemoteDatasource extends ICoursesDatasource {}
+abstract class ICoursesRemoteDatasource extends ICoursesDatasource {
+  Future<Unit> createCourse(CourseModel course);
+
+  Future<Unit> removeStudent(int courseId, int registerId);
+
+  Future<Unit> registerStudent(int courseId, int studentId);
+
+  Future<Unit> joinCourse(String code);
+
+  Future<List<RegistrationModel>> getCourseRegistrations(int courseId);
+
+  Future<Unit> editCourse(int id, String name);
+
+  Future<Unit> deleteCourse(int courseId);
+}

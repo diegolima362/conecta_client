@@ -1,5 +1,6 @@
 import 'package:conecta/app/core/external/drivers/shared_prefs.dart';
 import 'package:conecta/app/modules/courses/domain/entities/entities.dart';
+import 'package:conecta/app/modules/courses/infra/models/course_model.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../../domain/errors/errors.dart';
@@ -32,6 +33,17 @@ class CoursesRepository implements ICoursesRepository {
       return Right(Option.of(filtered.first));
     } else {
       return Right(Option.none());
+    }
+  }
+
+  @override
+  Future<EitherUnit> createCourse(CourseEntity course) async {
+    try {
+      await remoteData.createCourse(CourseModel.fromEntity(course));
+
+      return const Right(unit);
+    } on CoursesFailure catch (e) {
+      return Left(e);
     }
   }
 
@@ -89,5 +101,71 @@ class CoursesRepository implements ICoursesRepository {
 
     await localData.clearData();
     return const Right(unit);
+  }
+
+  @override
+  Future<EitherUnit> deleteCourse(int courseId) async {
+    try {
+      await remoteData.deleteCourse(courseId);
+
+      return const Right(unit);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<EitherUnit> editCourse(CourseEntity courseEntity) async {
+    try {
+      await remoteData.editCourse(courseEntity.id, courseEntity.name);
+
+      return const Right(unit);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<EitherRegistrations> getCourseRegistrations(int courseId) async {
+    try {
+      final result = await remoteData.getCourseRegistrations(courseId);
+
+      return Right(result);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<EitherUnit> joinCourse(String code) async {
+    try {
+      await remoteData.joinCourse(code);
+
+      return const Right(unit);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<EitherUnit> registerStudent(int courseId, int studentId) async {
+    try {
+      await remoteData.registerStudent(courseId, studentId);
+
+      return const Right(unit);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<EitherUnit> removeStudent(int courseId, int registerId) async {
+    try {
+      await remoteData.removeStudent(courseId, registerId);
+
+      return const Right(unit);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
   }
 }

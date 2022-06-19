@@ -38,7 +38,7 @@ class AuthDatasource implements IAuthDatasource {
           return handler.next(options);
         },
         onError: (error, handler) async {
-          if (error.response?.statusCode == 401) {
+          if (error.response?.statusCode == 403) {
             await refreshToken();
           }
 
@@ -67,6 +67,8 @@ class AuthDatasource implements IAuthDatasource {
     }
 
     try {
+      client.interceptors.clear();
+
       final response = await client.get(
         api.urlRefreshToken,
         options: Options(headers: {
@@ -89,6 +91,8 @@ class AuthDatasource implements IAuthDatasource {
       );
 
       await storage.saveUser(u);
+
+      await configureClient();
 
       return some(token);
     } on AuthFailure catch (e) {
@@ -171,9 +175,9 @@ class AuthDatasource implements IAuthDatasource {
 
   @override
   Future<Unit> logout() async {
-    await storage.clear();
-
     client.interceptors.clear();
+
+    await storage.clear();
 
     _user = none();
 

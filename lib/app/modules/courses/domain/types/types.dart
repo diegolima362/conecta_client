@@ -10,3 +10,5 @@ typedef EitherCourse = Either<CoursesFailure, Option<CourseEntity>>;
 typedef EitherString = Either<CoursesFailure, String>;
 
 typedef EitherUnit = Either<CoursesFailure, Unit>;
+
+typedef EitherRegistrations = Either<CoursesFailure, List<RegistrationEntity>>;

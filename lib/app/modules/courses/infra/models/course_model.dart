@@ -6,15 +6,26 @@ class CourseModel extends CourseEntity {
   CourseModel({
     required super.id,
     required super.name,
-    required super.professor,
+    required super.professorName,
+    required super.professorId,
     required super.code,
   });
+  factory CourseModel.fromEntity(CourseEntity course) {
+    return CourseModel(
+      id: course.id,
+      name: course.name,
+      professorName: course.professorName,
+      professorId: course.professorId,
+      code: course.code,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
-      'professor': professor,
+      'professorName': professorName,
+      'professorId': professorId,
       'code': code,
     };
   }
@@ -23,7 +34,8 @@ class CourseModel extends CourseEntity {
     return CourseModel(
       id: map['id'],
       name: map['name'],
-      professor: map['professor'],
+      professorName: map['professorName'],
+      professorId: map['professorId'],
       code: map['code'],
     );
   }
@@ -36,13 +48,15 @@ class CourseModel extends CourseEntity {
   CourseModel copyWith({
     int? id,
     String? name,
-    String? professor,
+    String? professorName,
+    int? professorId,
     String? code,
   }) {
     return CourseModel(
       id: id ?? this.id,
       name: name ?? this.name,
-      professor: professor ?? this.professor,
+      professorName: professorName ?? this.professorName,
+      professorId: professorId ?? this.professorId,
       code: code ?? this.code,
     );
   }
@@ -58,11 +72,16 @@ class CourseModel extends CourseEntity {
         other.id == id &&
         other.name == name &&
         other.code == code &&
-        other.professor == professor;
+        other.professorName == professorName &&
+        other.professorId == professorId;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ name.hashCode ^ professor.hashCode ^ code.hashCode;
+    return id.hashCode ^
+        name.hashCode ^
+        professorName.hashCode ^
+        professorId.hashCode ^
+        code.hashCode;
   }
 }

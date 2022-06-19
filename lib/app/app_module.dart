@@ -25,7 +25,7 @@ class AppModule extends Module {
   List<Bind> get binds => [
         TripleBind.singleton((i) => RootStore()),
         TripleBind.singleton((i) => ProfileStore(i())),
-        TripleBind.singleton((i) => HomeStore(i())),
+        TripleBind.singleton((i) => HomeStore(i(), i())),
       ];
 
   @override

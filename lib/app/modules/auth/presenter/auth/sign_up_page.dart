@@ -213,7 +213,7 @@ class SignUpPage extends HookWidget {
                     title: const Text('Login'),
                     state: index.value > 1
                         ? usernameController.text.trim().isEmpty ||
-                                !usernameController.text.trim().isEmail
+                                !emailController.text.trim().isEmail
                             ? StepState.error
                             : StepState.complete
                         : StepState.indexed,

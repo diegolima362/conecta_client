@@ -1,2 +1,2 @@
 export 'course_entity.dart';
-export 'schedule_entity.dart';
+export 'registration_entity.dart';

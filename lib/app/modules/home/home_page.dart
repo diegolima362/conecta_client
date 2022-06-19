@@ -1,7 +1,6 @@
 import 'package:conecta/app/core/domain/errors/erros.dart';
 import 'package:conecta/app/core/domain/extensions/extensions.dart';
 import 'package:conecta/app/core/presenter/widgets/widgets.dart';
-import 'package:conecta/app/modules/courses/domain/entities/course_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_triple/flutter_triple.dart';
@@ -42,22 +41,58 @@ class _HomePageState extends State<HomePage> {
                 },
                 icon: const Icon(Icons.person),
               ),
+              IconButton(
+                onPressed: () async {
+                  await store.getData(cached: false);
+                },
+                icon: const Icon(Icons.refresh),
+              ),
             ],
           ),
-          body: ScopedBuilder<HomeStore, AppContentFailure, List<CourseEntity>>(
+          floatingActionButton: AnimatedBuilder(
+            animation: store.selectState,
+            builder: (context, _) {
+              final user = store.state.user.toNullable();
+              final admin = user?.admin ?? false;
+              return Visibility(
+                visible: user != null,
+                child: FloatingActionButton(
+                  tooltip: admin ? 'Criar um Curso' : 'Entrar em um Curso',
+                  child: const Icon(Icons.add),
+                  onPressed: () async {
+                    if (admin) {
+                      await Modular.to.pushNamed('/app/courses/edit/new/');
+                    } else {
+                      await Modular.to.pushNamed('/app/courses/join/');
+                    }
+                    await Future.delayed(const Duration(milliseconds: 300));
+                    await store.getData(cached: false);
+                  },
+                ),
+              );
+            },
+          ),
+          body: ScopedBuilder<HomeStore, AppContentFailure, HomeState>(
             store: store,
             onLoading: (_) => const LoadingIndicator(),
             onError: (_, error) => EmptyCollection.error(
               message: error?.message,
             ),
             onState: (context, state) {
+              if (state.courses.isEmpty) {
+                return const EmptyCollection(
+                  text: 'Sem Cursos Registrados',
+                  icon: Icons.error_outline_sharp,
+                );
+              }
+
               return LayoutBuilder(
                 builder: (context, constraints) {
                   if (constraints.isMobile) {
                     return ListView.builder(
-                      itemCount: state.length,
+                      itemCount: state.courses.length,
                       itemBuilder: (context, index) {
-                        final course = state[index];
+                        final course = state.courses[index];
 
                         return Container(
                           padding: const EdgeInsets.symmetric(
@@ -67,8 +102,15 @@ class _HomePageState extends State<HomePage> {
                           height: 200,
                           child: CourseCard(
                             course: course,
-                            onTap: () => Modular.to
-                                .pushNamed('/app/courses/${course.id}/'),
+                            onTap: () async {
+                              await Modular.to
+                                  .pushNamed('/app/courses/${course.id}/');
+
+                              await Future.delayed(
+                                  const Duration(milliseconds: 300));
+
+                              await store.getData(cached: false);
+                            },
                           ),
                         );
                       },
@@ -83,9 +125,9 @@ class _HomePageState extends State<HomePage> {
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
                     ),
-                    itemCount: state.length,
+                    itemCount: state.courses.length,
                     itemBuilder: (context, index) {
-                      final course = state[index];
+                      final course = state.courses[index];
 
                       return CourseCard(
                         course: course,

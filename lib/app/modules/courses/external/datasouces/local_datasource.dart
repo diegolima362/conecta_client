@@ -1,31 +1,29 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../infra/datasources/courses_datasource.dart';
 import '../../infra/models/models.dart';
 
 class CoursesLocalDatasource implements ICoursesLocalDatasource {
-  final Box db;
+  CoursesLocalDatasource();
 
-  CoursesLocalDatasource(this.db);
+  final _courses = <CourseModel>[];
 
   @override
   Future<List<CourseModel>> getCourses({String? id}) async {
-    final data =
-        await db.get('courses', defaultValue: <String>[]) as List<String>;
-
-    return data.map((e) => CourseModel.fromJson(e)).toList();
+    return _courses;
   }
 
   @override
   Future<Unit> saveCourses(List<CourseModel> courses) async {
-    await db.put('courses', courses.map((e) => e.toJson()).toList());
+    _courses.clear();
+    _courses.addAll(courses);
+
     return unit;
   }
 
   @override
   Future<Unit> clearData() async {
-    await db.clear();
+    _courses.clear();
 
     return unit;
   }

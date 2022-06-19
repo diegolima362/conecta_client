@@ -1,4 +1,7 @@
-abstract class AuthFailure implements Exception {
+import 'package:conecta/app/core/domain/errors/erros.dart';
+
+abstract class AuthFailure implements AppContentFailure {
+  @override
   String get message;
 
   @override
