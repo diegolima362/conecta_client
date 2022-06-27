@@ -23,6 +23,8 @@ abstract class ICoursesRemoteDatasource extends ICoursesDatasource {
 
   Future<List<RegistrationModel>> getCourseRegistrations(int courseId);
 
+  Future<List<AssignmentModel>> getCourseAssignments(int courseId);
+
   Future<Unit> editCourse(int id, String name);
 
   Future<Unit> deleteCourse(int courseId);

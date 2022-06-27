@@ -5,15 +5,17 @@ class ProfileAvatar extends StatelessWidget {
     Key? key,
     required this.name,
     this.fontSize = 48,
+    this.radius = 50,
   }) : super(key: key);
 
   final String name;
   final double fontSize;
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 50,
+      radius: radius,
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       child: Text(
         name.isNotEmpty ? name[0] : name,

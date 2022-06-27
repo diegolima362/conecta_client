@@ -102,6 +102,17 @@ class _HomePageState extends State<HomePage> {
                           height: 200,
                           child: CourseCard(
                             course: course,
+                            onAssigmentTap: () async {
+                              await Modular.to.pushNamed(
+                                '/app/courses/${course.id}/',
+                                arguments: 'assignments',
+                              );
+
+                              await Future.delayed(
+                                  const Duration(milliseconds: 300));
+
+                              await store.getData(cached: false);
+                            },
                             onTap: () async {
                               await Modular.to
                                   .pushNamed('/app/courses/${course.id}/');
@@ -131,8 +142,26 @@ class _HomePageState extends State<HomePage> {
 
                       return CourseCard(
                         course: course,
-                        onTap: () =>
-                            Modular.to.pushNamed('/app/courses/${course.id}/'),
+                        onTap: () async {
+                          await Modular.to
+                              .pushNamed('/app/courses/${course.id}/');
+
+                          await Future.delayed(
+                              const Duration(milliseconds: 300));
+
+                          await store.getData(cached: false);
+                        },
+                        onAssigmentTap: () async {
+                          await Modular.to.pushNamed(
+                            '/app/courses/${course.id}/',
+                            arguments: 'assignments',
+                          );
+
+                          await Future.delayed(
+                              const Duration(milliseconds: 300));
+
+                          await store.getData(cached: false);
+                        },
                       );
                     },
                   );

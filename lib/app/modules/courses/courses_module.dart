@@ -1,10 +1,11 @@
 import 'package:conecta/app/modules/courses/domain/usecases/usecases.dart';
+import 'package:conecta/app/modules/courses/presenter/assignments/assignments_page.dart';
+import 'package:conecta/app/modules/courses/presenter/assignments/assignments_store.dart';
 import 'package:conecta/app/modules/courses/presenter/edit/course_edit_page.dart';
 import 'package:conecta/app/modules/courses/presenter/edit/course_edit_store.dart';
 import 'package:conecta/app/modules/courses/presenter/join/join_store.dart';
 import 'package:conecta/app/modules/courses/presenter/registrations/registrations_page.dart';
 import 'package:conecta/app/modules/courses/presenter/registrations/registrations_store.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:modular_triple_bind/modular_triple_bind.dart';
 
@@ -30,6 +31,7 @@ class CoursesModule extends Module {
     Bind.lazySingleton((i) => GetCourses(i()), export: true),
     Bind.lazySingleton((i) => JoinCourse(i()), export: true),
     Bind.lazySingleton((i) => GetCourseRegistrations(i()), export: true),
+    Bind.lazySingleton((i) => GetCourseAssignments(i()), export: true),
 
     // datasources
     Bind.lazySingleton((i) => CoursesLocalDatasource(), export: true),
@@ -39,6 +41,7 @@ class CoursesModule extends Module {
     TripleBind.singleton((i) => CourseDetailsStore(i(), i(), i())),
     TripleBind.singleton((i) => CourseEditStore(i(), i(), i())),
     TripleBind.singleton((i) => RegistrationsStore(i())),
+    TripleBind.singleton((i) => AssignmentsStore(i())),
     TripleBind.singleton((i) => JoinStore(i())),
   ];
 
@@ -51,8 +54,10 @@ class CoursesModule extends Module {
       ),
       children: [
         ChildRoute(
-          '/atividades/',
-          child: (_, args) => Container(),
+          '/assignments/',
+          child: (_, args) => AssignmentsPage(
+            courseId: int.tryParse(args.params['id']) ?? 0,
+          ),
         ),
         ChildRoute(
           '/registrations/',

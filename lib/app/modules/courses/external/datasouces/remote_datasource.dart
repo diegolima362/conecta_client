@@ -112,6 +112,26 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
   }
 
   @override
+  Future<List<AssignmentModel>> getCourseAssignments(int courseId) async {
+    try {
+      final url = '${api.urlCourses}/$courseId/assignments';
+
+      final result = await client.get(url);
+
+      final data = result.data as List;
+
+      return data.map((e) => AssignmentModel.fromMap(e)).toList();
+    } on DioError catch (e) {
+      String message = 'Erro de conexão!';
+
+      if (e.response?.statusCode == 403) {
+        message = 'Operação Não Autorizada!';
+      }
+      throw GetCoursesError(message: message);
+    }
+  }
+
+  @override
   Future<Unit> joinCourse(String code) async {
     try {
       final url = '${api.urlCourses}/$code/join';

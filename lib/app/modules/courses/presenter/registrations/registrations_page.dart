@@ -54,6 +54,7 @@ class _RegistrationsPageState extends State<RegistrationsPage> {
                     leading: ProfileAvatar(
                       name: registration.studentName,
                       fontSize: 24,
+                      radius: 24,
                     ),
                     title: Text(registration.studentName),
                     subtitle: Text(registration.studentEmail),

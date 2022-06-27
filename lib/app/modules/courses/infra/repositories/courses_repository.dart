@@ -14,6 +14,8 @@ class CoursesRepository implements ICoursesRepository {
   final SharedPrefs prefsStorage;
 
   final coursesCache = <CourseEntity>[];
+  final assignmentsCache = <AssignmentEntity>[];
+  final registrationsCache = <RegistrationEntity>[];
 
   CoursesRepository(this.localData, this.remoteData, this.prefsStorage);
 
@@ -129,6 +131,17 @@ class CoursesRepository implements ICoursesRepository {
   Future<EitherRegistrations> getCourseRegistrations(int courseId) async {
     try {
       final result = await remoteData.getCourseRegistrations(courseId);
+
+      return Right(result);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<EitherAssignments> getCourseAssignments(int courseId) async {
+    try {
+      final result = await remoteData.getCourseAssignments(courseId);
 
       return Right(result);
     } on CoursesFailure catch (e) {

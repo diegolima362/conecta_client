@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 class CourseCard extends StatelessWidget {
   final CourseEntity course;
   final VoidCallback? onTap;
+  final VoidCallback? onAssigmentTap;
 
-  const CourseCard({super.key, required this.course, this.onTap});
+  const CourseCard(
+      {super.key, required this.course, this.onTap, this.onAssigmentTap});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +48,7 @@ class CourseCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: IconButton(
                   icon: const Icon(Icons.assignment_outlined),
-                  onPressed: () {},
+                  onPressed: onAssigmentTap,
                 ),
               ),
             ),

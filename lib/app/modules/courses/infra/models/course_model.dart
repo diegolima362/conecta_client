@@ -10,6 +10,7 @@ class CourseModel extends CourseEntity {
     required super.professorId,
     required super.code,
   });
+
   factory CourseModel.fromEntity(CourseEntity course) {
     return CourseModel(
       id: course.id,

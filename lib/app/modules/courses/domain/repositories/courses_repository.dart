@@ -9,6 +9,8 @@ abstract class ICoursesRepository {
 
   Future<EitherRegistrations> getCourseRegistrations(int courseId);
 
+  Future<EitherAssignments> getCourseAssignments(int courseId);
+
   Future<EitherUnit> clearData();
 
   Future<EitherUnit> createCourse(CourseEntity course);

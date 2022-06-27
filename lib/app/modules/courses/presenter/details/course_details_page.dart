@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_triple/flutter_triple.dart';
 
+import '../assignments/assignments_page.dart';
 import '../feed/feed_page.dart';
 import '../registrations/registrations_page.dart';
 import '../widgets/widgets.dart';
@@ -32,9 +33,11 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
 
     store.getData(widget.courseId);
 
-    pageController = PageController();
+    final initialIndex = Modular.args.data == 'assignments' ? 1 : 0;
 
-    currentIndex = ValueNotifier(0);
+    pageController = PageController(initialPage: initialIndex);
+
+    currentIndex = ValueNotifier(initialIndex);
   }
 
   @override
@@ -65,13 +68,19 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
     return LayoutBuilder(
       builder: (context, constraints) => Scaffold(
         appBar: AppBar(
-          centerTitle: true,
+          centerTitle: false,
           title: AnimatedBuilder(
             animation: currentIndex,
             builder: (_, __) => Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: constraints.isMobile
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
               children: [
                 if (!constraints.isMobile) ...[
+                  Text(
+                    store.state.course.toNullable()?.name ?? '',
+                  ),
+                  const Expanded(child: SizedBox(width: 16)),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: TextButton.icon(
@@ -99,7 +108,11 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                       label: const Text('Pessoas'),
                     ),
                   ),
-                ],
+                  const Expanded(child: SizedBox(width: 16)),
+                ] else if (constraints.isMobile && currentIndex.value != 0)
+                  Text(
+                    store.state.course.toNullable()?.name ?? '',
+                  ),
               ],
             ),
           ),
@@ -152,9 +165,10 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
 
               return PageView(
                 controller: pageController,
+                onPageChanged: jumpToPage,
                 children: [
                   CourseFeed(course: course),
-                  Container(color: Colors.red),
+                  AssignmentsPage(courseId: course.id),
                   RegistrationsPage(courseId: course.id),
                 ],
               );
