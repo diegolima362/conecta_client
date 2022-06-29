@@ -14,3 +14,4 @@ typedef EitherString = Either<CoursesFailure, String>;
 typedef EitherUnit = Either<CoursesFailure, Unit>;
 
 typedef EitherRegistrations = Either<CoursesFailure, List<RegistrationEntity>>;
+typedef EitherFeed = Either<CoursesFailure, List<PostEntity>>;

@@ -76,9 +76,9 @@ class AssignmentModel extends AssignmentEntity {
       'subtitle': subtitle,
       'content': content,
       'grade': grade,
-      'creationDate': creationDate,
-      'editDate': editDate,
-      'dueDate': dueDate,
+      'creationDate': creationDate.toIso8601String(),
+      'editDate': editDate?.toIso8601String(),
+      'dueDate': dueDate.toIso8601String(),
     };
   }
 
@@ -93,12 +93,14 @@ class AssignmentModel extends AssignmentEntity {
       subtitle: map['subtitle'] ?? '',
       content: map['content'] ?? '',
       grade: map['grade']?.toInt() ?? 0,
-      creationDate: DateTime.parse(
-        map['creationDate'] ?? DateTime.now().toIso8601String(),
-      ),
+      creationDate: map['creationDate'] != null
+          ? DateTime.parse(map['creationDate'])
+          : DateTime.now(),
       editDate:
           map['editDate'] != null ? DateTime.parse(map['editDate']) : null,
-      dueDate: DateTime.parse(map['dueDate'] ?? ''),
+      dueDate: map['dueDate'] != null
+          ? DateTime.parse(map['dueDate'])
+          : DateTime.now(),
     );
   }
 

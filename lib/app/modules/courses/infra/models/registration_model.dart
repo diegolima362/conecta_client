@@ -45,7 +45,7 @@ class RegistrationModel extends RegistrationEntity {
       'studentEmail': studentEmail,
       'courseId': courseId,
       'courseName': courseName,
-      'registeredAt': registeredAt.millisecondsSinceEpoch,
+      'registeredAt': registeredAt.toIso8601String(),
     };
   }
 
@@ -58,9 +58,9 @@ class RegistrationModel extends RegistrationEntity {
       studentEmail: map['studentEmail'] ?? '',
       courseId: map['courseId']?.toInt() ?? 0,
       courseName: map['courseName'] ?? '',
-      registeredAt: map['registeredAt'] is String
+      registeredAt: map['registeredAt'] != null
           ? DateTime.parse(map['registeredAt'])
-          : DateTime.fromMillisecondsSinceEpoch(map['registeredAt']),
+          : DateTime.now(),
     );
   }
 

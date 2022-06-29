@@ -1,13 +1,7 @@
-import 'package:conecta/app/core/domain/errors/erros.dart';
 import 'package:conecta/app/core/domain/extensions/extensions.dart';
-import 'package:conecta/app/core/presenter/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:flutter_triple/flutter_triple.dart';
 
-import '../assignments/assignments_page.dart';
-import '../feed/feed_page.dart';
-import '../registrations/registrations_page.dart';
 import '../widgets/widgets.dart';
 import 'course_details_store.dart';
 
@@ -22,8 +16,6 @@ class CourseDetailsPage extends StatefulWidget {
 
 class _CourseDetailsPageState extends State<CourseDetailsPage> {
   late final CourseDetailsStore store;
-  late final PageController pageController;
-  late final ValueNotifier<int> currentIndex;
 
   @override
   void initState() {
@@ -32,29 +24,22 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
     store = Modular.get();
 
     store.getData(widget.courseId);
-
-    final initialIndex = Modular.args.data == 'assignments' ? 1 : 0;
-
-    pageController = PageController(initialPage: initialIndex);
-
-    currentIndex = ValueNotifier(initialIndex);
-  }
-
-  @override
-  void dispose() {
-    pageController.dispose();
-    currentIndex.dispose();
-
-    super.dispose();
   }
 
   void jumpToPage(int index) {
-    pageController.jumpToPage(index);
-    currentIndex.value = index;
+    if (index == 0) {
+      Modular.to.navigate('/app/courses/${widget.courseId}/feed/');
+    } else if (index == 1) {
+      Modular.to.navigate('/app/courses/${widget.courseId}/assignments/');
+    } else if (index == 2) {
+      Modular.to.navigate('/app/courses/${widget.courseId}/registrations/');
+    }
+
+    store.jumpToPage(index);
   }
 
   ButtonStyle? getStyle(int index) {
-    return currentIndex.value != index
+    return store.state.page != index
         ? ButtonStyle(
             foregroundColor: MaterialStateProperty.resolveWith(
               (_) => context.colors.outline,
@@ -69,112 +54,98 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
       builder: (context, constraints) => Scaffold(
         appBar: AppBar(
           centerTitle: false,
+          leading: BackButton(
+            onPressed: () => Modular.to.navigate('/app/home/'),
+          ),
           title: AnimatedBuilder(
-            animation: currentIndex,
-            builder: (_, __) => Row(
-              mainAxisAlignment: constraints.isMobile
-                  ? MainAxisAlignment.start
-                  : MainAxisAlignment.center,
-              children: [
-                if (!constraints.isMobile) ...[
-                  Text(
-                    store.state.course.toNullable()?.name ?? '',
-                  ),
-                  const Expanded(child: SizedBox(width: 16)),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextButton.icon(
-                      style: getStyle(0),
-                      onPressed: () => jumpToPage(0),
-                      icon: const Icon(Icons.filter_none_rounded),
-                      label: const Text('Mural'),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextButton.icon(
-                      style: getStyle(1),
-                      onPressed: () => jumpToPage(1),
-                      icon: const Icon(Icons.assignment_outlined),
-                      label: const Text('Atividades'),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextButton.icon(
-                      style: getStyle(2),
-                      onPressed: () => jumpToPage(2),
-                      icon: const Icon(Icons.people_alt_outlined),
-                      label: const Text('Pessoas'),
-                    ),
-                  ),
-                  const Expanded(child: SizedBox(width: 16)),
-                ] else if (constraints.isMobile && currentIndex.value != 0)
-                  Text(
-                    store.state.course.toNullable()?.name ?? '',
-                  ),
-              ],
-            ),
-          ),
-          actions: [
-            AnimatedBuilder(
-              animation: store.selectState,
-              builder: (context, _) => CourseMenu(owner: store.isOwner),
-            ),
-          ],
-        ),
-        bottomNavigationBar: Visibility(
-          visible: constraints.isMobile,
-          child: AnimatedBuilder(
-            animation: currentIndex,
-            builder: (_, __) => NavigationBar(
-              selectedIndex: currentIndex.value,
-              onDestinationSelected: jumpToPage,
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.filter_none_rounded),
-                  label: 'Mural',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.assignment_outlined),
-                  label: 'Atividades',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.people_alt_outlined),
-                  label: 'Pessoas',
-                ),
-              ],
-            ),
-          ),
-        ),
-        body: ArticleContent(
-          child: ScopedBuilder<CourseDetailsStore, AppContentFailure,
-              CoursetDetailsState>(
-            store: store,
-            onLoading: (_) => const LoadingIndicator(),
-            onError: (_, error) =>
-                EmptyCollection.error(message: error?.message),
-            onState: (context, state) {
-              final course = state.course.toNullable();
-              if (course == null) {
-                return const EmptyCollection(
-                  text: 'Nada por aqui!',
-                  icon: Icons.error_outline_sharp,
-                );
-              }
+            animation: store.selectState,
+            builder: (context, _) {
+              final course = store.state.course.toNullable();
 
-              return PageView(
-                controller: pageController,
-                onPageChanged: jumpToPage,
+              if (course == null) {
+                return const SizedBox.shrink();
+              }
+              return Row(
+                mainAxisAlignment: constraints.isMobile
+                    ? MainAxisAlignment.start
+                    : MainAxisAlignment.center,
                 children: [
-                  CourseFeed(course: course),
-                  AssignmentsPage(courseId: course.id),
-                  RegistrationsPage(courseId: course.id),
+                  if (!constraints.isMobile) ...[
+                    Text(
+                      store.state.course.toNullable()?.name ?? '',
+                    ),
+                    const Expanded(child: SizedBox(width: 16)),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextButton.icon(
+                        style: getStyle(0),
+                        onPressed: () => jumpToPage(0),
+                        icon: const Icon(Icons.filter_none_rounded),
+                        label: const Text('Mural'),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextButton.icon(
+                        style: getStyle(1),
+                        onPressed: () => jumpToPage(1),
+                        icon: const Icon(Icons.assignment_outlined),
+                        label: const Text('Atividades'),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextButton.icon(
+                        style: getStyle(2),
+                        onPressed: () => jumpToPage(2),
+                        icon: const Icon(Icons.people_alt_outlined),
+                        label: const Text('Pessoas'),
+                      ),
+                    ),
+                    const Expanded(child: SizedBox(width: 16)),
+                  ] else if (constraints.isMobile && store.state.page != 0)
+                    Text(course.name),
                 ],
               );
             },
           ),
+          actions: [
+            AnimatedBuilder(
+                animation: store.selectState,
+                builder: (context, _) {
+                  return CourseMenu(owner: store.isOwner);
+                }),
+          ],
         ),
+        bottomNavigationBar: AnimatedBuilder(
+            animation: store.selectState,
+            builder: (context, _) {
+              final course = store.state.course.toNullable();
+              return Visibility(
+                visible: constraints.isMobile,
+                child: course == null
+                    ? const SizedBox.shrink()
+                    : NavigationBar(
+                        selectedIndex: store.state.page,
+                        onDestinationSelected: (i) => jumpToPage(i),
+                        destinations: const [
+                          NavigationDestination(
+                            icon: Icon(Icons.filter_none_rounded),
+                            label: 'Mural',
+                          ),
+                          NavigationDestination(
+                            icon: Icon(Icons.assignment_outlined),
+                            label: 'Atividades',
+                          ),
+                          NavigationDestination(
+                            icon: Icon(Icons.people_alt_outlined),
+                            label: 'Pessoas',
+                          ),
+                        ],
+                      ),
+              );
+            }),
+        body: const RouterOutlet(),
       ),
     );
   }

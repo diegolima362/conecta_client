@@ -128,6 +128,17 @@ class CoursesRepository implements ICoursesRepository {
   }
 
   @override
+  Future<EitherFeed> getCourseFeed(int courseId) async {
+    try {
+      final result = await remoteData.getCourseFeed(courseId);
+
+      return Right(result);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
   Future<EitherRegistrations> getCourseRegistrations(int courseId) async {
     try {
       final result = await remoteData.getCourseRegistrations(courseId);

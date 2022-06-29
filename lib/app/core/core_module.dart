@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'external/drivers/drivers.dart';
 import 'presenter/pages/landing/landing_page.dart';
+import 'presenter/pages/wildcard/not_found_page.dart';
 import 'presenter/stores/auth_store.dart';
 import 'presenter/stores/prefs_store.dart';
 
@@ -41,5 +42,6 @@ class CoreModule extends Module {
   @override
   final List<ModularRoute> routes = [
     ChildRoute('/', child: (context, args) => LandingPage()),
+    WildcardRoute(child: (context, args) => const NotFoundPage()),
   ];
 }

@@ -3,6 +3,7 @@ export 'delete_course.dart';
 export 'edit_course.dart';
 export 'get_assignments.dart';
 export 'get_course_by_id.dart';
+export 'get_course_feed.dart';
 export 'get_course_registrations.dart';
 export 'get_courses.dart';
 export 'join_course.dart';

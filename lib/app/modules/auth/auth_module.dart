@@ -1,4 +1,5 @@
 import 'package:conecta/app/core/core_module.dart';
+import 'package:conecta/app/core/presenter/pages/wildcard/not_found_page.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:modular_triple_bind/modular_triple_bind.dart';
 
@@ -44,5 +45,6 @@ class AuthModule extends Module {
   @override
   final List<ModularRoute> routes = [
     ChildRoute('/', child: (_, __) => const AuthPage()),
+    WildcardRoute(child: (context, args) => const NotFoundPage()),
   ];
 }

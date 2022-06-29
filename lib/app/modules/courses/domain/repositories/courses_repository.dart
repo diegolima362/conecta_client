@@ -7,6 +7,8 @@ abstract class ICoursesRepository {
 
   Future<EitherCourse> getCourseById(int id);
 
+  Future<EitherFeed> getCourseFeed(int courseId);
+
   Future<EitherRegistrations> getCourseRegistrations(int courseId);
 
   Future<EitherAssignments> getCourseAssignments(int courseId);

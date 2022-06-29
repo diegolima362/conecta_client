@@ -1,11 +1,12 @@
+import 'package:conecta/app/core/presenter/pages/wildcard/not_found_page.dart';
 import 'package:conecta/app/modules/courses/domain/usecases/usecases.dart';
 import 'package:conecta/app/modules/courses/presenter/assignments/assignments_page.dart';
-import 'package:conecta/app/modules/courses/presenter/assignments/assignments_store.dart';
+import 'package:conecta/app/modules/courses/presenter/assignments/details/details_page.dart';
 import 'package:conecta/app/modules/courses/presenter/edit/course_edit_page.dart';
 import 'package:conecta/app/modules/courses/presenter/edit/course_edit_store.dart';
+import 'package:conecta/app/modules/courses/presenter/feed/feed_page.dart';
 import 'package:conecta/app/modules/courses/presenter/join/join_store.dart';
 import 'package:conecta/app/modules/courses/presenter/registrations/registrations_page.dart';
-import 'package:conecta/app/modules/courses/presenter/registrations/registrations_store.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:modular_triple_bind/modular_triple_bind.dart';
 
@@ -32,16 +33,24 @@ class CoursesModule extends Module {
     Bind.lazySingleton((i) => JoinCourse(i()), export: true),
     Bind.lazySingleton((i) => GetCourseRegistrations(i()), export: true),
     Bind.lazySingleton((i) => GetCourseAssignments(i()), export: true),
+    Bind.lazySingleton((i) => GetCourseFeed(i()), export: true),
 
     // datasources
     Bind.lazySingleton((i) => CoursesLocalDatasource(), export: true),
     Bind.lazySingleton((i) => CoursesRemoteDatasource(i()), export: true),
 
     // stores
-    TripleBind.singleton((i) => CourseDetailsStore(i(), i(), i())),
+    TripleBind.singleton(
+      (i) => CourseDetailsStore(
+        getCourse: i(),
+        deleteCourse: i(),
+        getLoggedUser: i(),
+        getFeed: i(),
+        getAssignments: i(),
+        getRegistrations: i(),
+      ),
+    ),
     TripleBind.singleton((i) => CourseEditStore(i(), i(), i())),
-    TripleBind.singleton((i) => RegistrationsStore(i())),
-    TripleBind.singleton((i) => AssignmentsStore(i())),
     TripleBind.singleton((i) => JoinStore(i())),
   ];
 
@@ -54,16 +63,24 @@ class CoursesModule extends Module {
       ),
       children: [
         ChildRoute(
+          '/feed/',
+          child: (_, args) => const CourseFeed(),
+        ),
+        ChildRoute(
           '/assignments/',
-          child: (_, args) => AssignmentsPage(
-            courseId: int.tryParse(args.params['id']) ?? 0,
-          ),
+          child: (_, args) => const AssignmentsPage(),
+          children: [
+            ChildRoute(
+              '/details/',
+              child: (_, args) => AssignmentDetailsPage(
+                assignment: args.data,
+              ),
+            ),
+          ],
         ),
         ChildRoute(
           '/registrations/',
-          child: (_, args) => RegistrationsPage(
-            courseId: int.tryParse(args.params['id']) ?? 0,
-          ),
+          child: (_, args) => const RegistrationsPage(),
         ),
       ],
     ),
@@ -77,5 +94,6 @@ class CoursesModule extends Module {
       '/join/',
       child: (_, args) => const JointCoursePage(),
     ),
+    WildcardRoute(child: (context, args) => const NotFoundPage()),
   ];
 }

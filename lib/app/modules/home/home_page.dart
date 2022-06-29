@@ -102,20 +102,14 @@ class _HomePageState extends State<HomePage> {
                           height: 200,
                           child: CourseCard(
                             course: course,
-                            onAssigmentTap: () async {
-                              await Modular.to.pushNamed(
-                                '/app/courses/${course.id}/',
-                                arguments: 'assignments',
+                            onAssigmentTap: () {
+                              Modular.to.pushNamed(
+                                '/app/courses/${course.id}/assignments/',
                               );
-
-                              await Future.delayed(
-                                  const Duration(milliseconds: 300));
-
-                              await store.getData(cached: false);
                             },
                             onTap: () async {
                               await Modular.to
-                                  .pushNamed('/app/courses/${course.id}/');
+                                  .pushNamed('/app/courses/${course.id}/feed/');
 
                               await Future.delayed(
                                   const Duration(milliseconds: 300));
@@ -144,23 +138,17 @@ class _HomePageState extends State<HomePage> {
                         course: course,
                         onTap: () async {
                           await Modular.to
-                              .pushNamed('/app/courses/${course.id}/');
+                              .pushNamed('/app/courses/${course.id}/feed/');
 
                           await Future.delayed(
                               const Duration(milliseconds: 300));
 
                           await store.getData(cached: false);
                         },
-                        onAssigmentTap: () async {
-                          await Modular.to.pushNamed(
-                            '/app/courses/${course.id}/',
-                            arguments: 'assignments',
+                        onAssigmentTap: () {
+                          Modular.to.pushNamed(
+                            '/app/courses/${course.id}/assignments/',
                           );
-
-                          await Future.delayed(
-                              const Duration(milliseconds: 300));
-
-                          await store.getData(cached: false);
                         },
                       );
                     },

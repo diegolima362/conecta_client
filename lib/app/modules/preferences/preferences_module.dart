@@ -1,3 +1,4 @@
+import 'package:conecta/app/core/presenter/pages/wildcard/not_found_page.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'domain/usecases/usecases.dart';
@@ -22,5 +23,6 @@ class PreferencesModule extends Module {
   @override
   final List<ModularRoute> routes = [
     ChildRoute('/', child: (_, __) => const PreferencesPage()),
+    WildcardRoute(child: (context, args) => const NotFoundPage()),
   ];
 }

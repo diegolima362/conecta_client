@@ -1,43 +1,39 @@
 import 'package:conecta/app/core/domain/errors/erros.dart';
 import 'package:conecta/app/core/presenter/widgets/widgets.dart';
-import 'package:conecta/app/modules/courses/domain/entities/registration_entity.dart';
 import 'package:conecta/app/modules/profile/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_triple/flutter_triple.dart';
 
-import 'registrations_store.dart';
+import '../details/course_details_store.dart';
 
 class RegistrationsPage extends StatefulWidget {
-  final int courseId;
-
-  const RegistrationsPage({super.key, required this.courseId});
+  const RegistrationsPage({super.key});
 
   @override
   State<RegistrationsPage> createState() => _RegistrationsPageState();
 }
 
 class _RegistrationsPageState extends State<RegistrationsPage> {
-  late final RegistrationsStore store;
+  late final CourseDetailsStore store;
+
   @override
   void initState() {
     super.initState();
     store = Modular.get();
-
-    store.getData(widget.courseId);
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
-        body: ScopedBuilder<RegistrationsStore, AppContentFailure,
-            List<RegistrationEntity>>(
+        body: ScopedBuilder<CourseDetailsStore, AppContentFailure,
+            CoursetDetailsState>(
           store: store,
           onLoading: (_) => const LoadingIndicator(),
           onError: (_, error) => EmptyCollection.error(message: ''),
           onState: (context, state) {
-            if (state.isEmpty) {
+            if (state.registrations.isEmpty) {
               return const EmptyCollection(
                 text: "Sem Alunos Registrados!",
                 icon: Icons.person_off_outlined,
@@ -46,9 +42,9 @@ class _RegistrationsPageState extends State<RegistrationsPage> {
 
             return ArticleContent(
               child: ListView.builder(
-                itemCount: state.length,
+                itemCount: state.registrations.length,
                 itemBuilder: (context, index) {
-                  final registration = state[index];
+                  final registration = state.registrations[index];
 
                   return ListTile(
                     leading: ProfileAvatar(

@@ -1,7 +1,9 @@
+import 'package:conecta/app/core/presenter/pages/wildcard/not_found_page.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:modular_triple_bind/modular_triple_bind.dart';
 
 import 'core/core_module.dart';
+import 'core/presenter/stores/auth_store.dart';
 import 'modules/auth/auth_module.dart';
 import 'modules/courses/courses_module.dart';
 import 'modules/home/home_page.dart';
@@ -45,7 +47,18 @@ class AppModule extends Module {
           '/profile/',
           child: (context, args) => const ProfilePage(),
         ),
+        WildcardRoute(child: (context, args) => const NotFoundPage()),
       ],
+      guards: [AuthGuard()],
     ),
   ];
+}
+
+class AuthGuard extends RouteGuard {
+  AuthGuard() : super(redirectTo: '/');
+
+  @override
+  Future<bool> canActivate(String path, ModularRoute route) async {
+    return Modular.get<AuthStore>().isLogged;
+  }
 }
