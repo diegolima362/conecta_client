@@ -101,15 +101,11 @@ class _HomePageState extends State<HomePage> {
                           ),
                           height: 200,
                           child: CourseCard(
+                            index: index,
                             course: course,
-                            onAssigmentTap: () {
-                              Modular.to.pushNamed(
-                                '/app/courses/${course.id}/assignments/',
-                              );
-                            },
                             onTap: () async {
                               await Modular.to
-                                  .pushNamed('/app/courses/${course.id}/feed/');
+                                  .pushNamed('/app/courses/${course.id}/');
 
                               await Future.delayed(
                                   const Duration(milliseconds: 300));
@@ -135,20 +131,16 @@ class _HomePageState extends State<HomePage> {
                       final course = state.courses[index];
 
                       return CourseCard(
+                        index: index,
                         course: course,
                         onTap: () async {
                           await Modular.to
-                              .pushNamed('/app/courses/${course.id}/feed/');
+                              .pushNamed('/app/courses/${course.id}/');
 
                           await Future.delayed(
                               const Duration(milliseconds: 300));
 
                           await store.getData(cached: false);
-                        },
-                        onAssigmentTap: () {
-                          Modular.to.pushNamed(
-                            '/app/courses/${course.id}/assignments/',
-                          );
                         },
                       );
                     },
