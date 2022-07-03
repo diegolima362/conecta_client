@@ -1,4 +1,4 @@
-import '../repositories/courses_repository.dart';
+import '../repositories/repositories.dart';
 import '../types/types.dart';
 
 abstract class IGetCourseFeed {
@@ -6,7 +6,7 @@ abstract class IGetCourseFeed {
 }
 
 class GetCourseFeed implements IGetCourseFeed {
-  final ICoursesRepository repository;
+  final IFeedRepository repository;
 
   GetCourseFeed(this.repository);
 

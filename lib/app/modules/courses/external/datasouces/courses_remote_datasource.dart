@@ -15,7 +15,23 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
   CoursesRemoteDatasource(this.client);
 
   @override
-  Future<List<CourseModel>> getCourses({String? id}) async {
+  Future<CourseModel> getCourse(int courseId) async {
+    try {
+      final result = await client.get('${api.urlCourses}/$courseId');
+
+      return CourseModel.fromMap(result.data);
+    } on DioError catch (e) {
+      String message = 'Erro de conexão!';
+
+      if (e.response?.statusCode == 403) {
+        message = 'Operação Não Autorizada!';
+      }
+      throw RemoteCoursesError(message: message);
+    }
+  }
+
+  @override
+  Future<List<CourseModel>> getCourses() async {
     try {
       final result = await client.get(api.urlMyCourses);
 
@@ -28,7 +44,7 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
       if (e.response?.statusCode == 403) {
         message = 'Operação Não Autorizada!';
       }
-      throw GetCoursesError(message: message);
+      throw RemoteCoursesError(message: message);
     }
   }
 
@@ -49,7 +65,7 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
       if (e.response?.statusCode == 403) {
         message = 'Operação Não Autorizada!';
       }
-      throw GetCoursesError(message: message);
+      throw RemoteCoursesError(message: message);
     }
   }
 
@@ -67,7 +83,7 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
       if (e.response?.statusCode == 403) {
         message = 'Operação Não Autorizada!';
       }
-      throw GetCoursesError(message: message);
+      throw RemoteCoursesError(message: message);
     }
   }
 
@@ -87,58 +103,7 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
       if (e.response?.statusCode == 403) {
         message = 'Operação Não Autorizada!';
       }
-      throw GetCoursesError(message: message);
-    }
-  }
-
-  @override
-  Future<List<PostModel>> getCourseFeed(int courseId) async {
-    try {
-      final url = '${api.urlCourses}/$courseId/feed';
-
-      final result = await client.get(url);
-
-      final response = result.data as List;
-
-      final data = response.map((e) => PostModel.fromMap(e)).toList();
-
-      final feed = <PostModel>[];
-
-      for (final p in data) {
-        final replies = <int, List<CommentModel>>{};
-        final comments = <CommentModel>[];
-
-        for (final c in p.comments) {
-          final replyTo = c.replyTo;
-          if (replyTo != null) {
-            if (!replies.containsKey(replyTo)) {
-              replies[replyTo] = <CommentModel>[];
-            }
-            replies[replyTo]!.add(c as CommentModel);
-          } else {
-            comments.add(c as CommentModel);
-          }
-        }
-        final postComments = <CommentModel>[];
-        for (final c in comments) {
-          if (replies.containsKey(c.id)) {
-            postComments.add(c.copyWith(replies: replies[c.id] ?? []));
-          } else {
-            postComments.add(c);
-          }
-        }
-
-        feed.add(p.copyWith(comments: postComments));
-      }
-
-      return feed;
-    } on DioError catch (e) {
-      String message = 'Erro de conexão!';
-
-      if (e.response?.statusCode == 403) {
-        message = 'Operação Não Autorizada!';
-      }
-      throw GetCoursesError(message: message);
+      throw RemoteCoursesError(message: message);
     }
   }
 
@@ -158,27 +123,7 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
       if (e.response?.statusCode == 403) {
         message = 'Operação Não Autorizada!';
       }
-      throw GetCoursesError(message: message);
-    }
-  }
-
-  @override
-  Future<List<AssignmentModel>> getCourseAssignments(int courseId) async {
-    try {
-      final url = '${api.urlCourses}/$courseId/assignments';
-
-      final result = await client.get(url);
-
-      final data = result.data as List;
-
-      return data.map((e) => AssignmentModel.fromMap(e)).toList();
-    } on DioError catch (e) {
-      String message = 'Erro de conexão!';
-
-      if (e.response?.statusCode == 403) {
-        message = 'Operação Não Autorizada!';
-      }
-      throw GetCoursesError(message: message);
+      throw RemoteCoursesError(message: message);
     }
   }
 
@@ -196,7 +141,7 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
       if (e.response?.statusCode == 403) {
         message = 'Operação Não Autorizada!';
       }
-      throw GetCoursesError(message: message);
+      throw RemoteCoursesError(message: message);
     }
   }
 
@@ -214,7 +159,7 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
       if (e.response?.statusCode == 403) {
         message = 'Operação Não Autorizada!';
       }
-      throw GetCoursesError(message: message);
+      throw RemoteCoursesError(message: message);
     }
   }
 
@@ -232,7 +177,42 @@ class CoursesRemoteDatasource implements ICoursesRemoteDatasource {
       if (e.response?.statusCode == 403) {
         message = 'Operação Não Autorizada!';
       }
-      throw GetCoursesError(message: message);
+      throw RemoteCoursesError(message: message);
+    }
+  }
+
+  @override
+  Future<Unit> leaveCourse(int courseId) async {
+    try {
+      final url = '${api.urlCourses}/$courseId/leave';
+
+      await client.post(url);
+
+      return unit;
+    } on DioError catch (e) {
+      String message = 'Erro de conexão!';
+
+      if (e.response?.statusCode == 403) {
+        message = 'Operação Não Autorizada!';
+      }
+      throw RemoteCoursesError(message: message);
+    }
+  }
+
+  @override
+  Future<Unit> removePerson(int courseId, int registrationId) async {
+    try {
+      final url = '${api.urlCourses}/$courseId/registrations/$registrationId';
+      await client.delete(url);
+
+      return unit;
+    } on DioError catch (e) {
+      String message = 'Erro de conexão!';
+
+      if (e.response?.statusCode == 403) {
+        message = 'Operação Não Autorizada!';
+      }
+      throw RemoteCoursesError(message: message);
     }
   }
 }

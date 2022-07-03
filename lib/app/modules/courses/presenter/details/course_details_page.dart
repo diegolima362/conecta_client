@@ -5,40 +5,32 @@ import 'package:flutter_modular/flutter_modular.dart';
 import '../widgets/widgets.dart';
 import 'course_details_store.dart';
 
-class CourseDetailsPage extends StatefulWidget {
-  const CourseDetailsPage({Key? key, required this.courseId}) : super(key: key);
+class CourseDetailsPage extends StatelessWidget {
+  late final CourseDetailsStore store;
 
   final int courseId;
 
-  @override
-  State<CourseDetailsPage> createState() => _CourseDetailsPageState();
-}
-
-class _CourseDetailsPageState extends State<CourseDetailsPage> {
-  late final CourseDetailsStore store;
-
-  @override
-  void initState() {
-    super.initState();
-
+  CourseDetailsPage({super.key, required this.courseId}) {
     store = Modular.get();
+    store.clear();
+    store.getData(courseId);
 
-    store.getData(widget.courseId);
+    jumpToPage(0);
   }
 
   void jumpToPage(int index) {
     if (index == 0) {
-      Modular.to.navigate('/app/courses/${widget.courseId}/feed/');
+      Modular.to.navigate('/app/courses/$courseId/feed/');
     } else if (index == 1) {
-      Modular.to.navigate('/app/courses/${widget.courseId}/assignments/');
+      Modular.to.navigate('/app/courses/$courseId/assignments/');
     } else if (index == 2) {
-      Modular.to.navigate('/app/courses/${widget.courseId}/registrations/');
+      Modular.to.navigate('/app/courses/$courseId/registrations/');
     }
 
     store.jumpToPage(index);
   }
 
-  ButtonStyle? getStyle(int index) {
+  ButtonStyle? getStyle(BuildContext context, int index) {
     return store.state.page != index
         ? ButtonStyle(
             foregroundColor: MaterialStateProperty.resolveWith(
@@ -78,7 +70,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: TextButton.icon(
-                        style: getStyle(0),
+                        style: getStyle(context, 0),
                         onPressed: () => jumpToPage(0),
                         icon: const Icon(Icons.filter_none_rounded),
                         label: const Text('Mural'),
@@ -87,7 +79,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: TextButton.icon(
-                        style: getStyle(1),
+                        style: getStyle(context, 1),
                         onPressed: () => jumpToPage(1),
                         icon: const Icon(Icons.assignment_outlined),
                         label: const Text('Atividades'),
@@ -96,7 +88,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: TextButton.icon(
-                        style: getStyle(2),
+                        style: getStyle(context, 2),
                         onPressed: () => jumpToPage(2),
                         icon: const Icon(Icons.people_alt_outlined),
                         label: const Text('Pessoas'),
@@ -111,10 +103,16 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
           ),
           actions: [
             AnimatedBuilder(
-                animation: store.selectState,
-                builder: (context, _) {
-                  return CourseMenu(owner: store.isOwner);
-                }),
+              animation: store.selectState,
+              builder: (context, _) {
+                final course = store.state.course.toNullable();
+                if (course == null) return const SizedBox.shrink();
+                return CourseMenu(
+                  owner: store.isOwner,
+                  course: course,
+                );
+              },
+            ),
           ],
         ),
         bottomNavigationBar: AnimatedBuilder(

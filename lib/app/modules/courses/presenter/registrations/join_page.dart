@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
-import './join_store.dart';
+import 'registrations_store.dart';
 
 class JointCoursePage extends HookWidget {
   const JointCoursePage({Key? key}) : super(key: key);
@@ -16,7 +16,7 @@ class JointCoursePage extends HookWidget {
 
     final filled = useState(false);
 
-    final store = Modular.get<JoinStore>();
+    final store = Modular.get<RegistrationsStore>();
 
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +44,7 @@ class JointCoursePage extends HookWidget {
                       FocusScope.of(context).unfocus();
 
                       if (textController.text.isNotEmpty) {
-                        store.join(textController.text);
+                        store.joinCourse(textController.text);
 
                         Navigator.of(context).pop();
                       }
@@ -59,7 +59,7 @@ class JointCoursePage extends HookWidget {
                         onPressed: filled.value
                             ? () {
                                 FocusScope.of(context).unfocus();
-                                store.join(textController.text);
+                                store.joinCourse(textController.text);
                                 Navigator.of(context).pop();
                               }
                             : null,

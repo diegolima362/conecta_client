@@ -14,8 +14,20 @@ class AlertFailure implements CoursesFailure {
   AlertFailure({this.message = ''});
 }
 
-class GetCoursesError implements CoursesFailure {
+class RemoteCoursesError implements CoursesFailure {
   @override
   final String message;
-  GetCoursesError({this.message = ''});
+  RemoteCoursesError({this.message = ''});
+}
+
+class RemoteAssignmentsError implements CoursesFailure {
+  @override
+  final String message;
+  RemoteAssignmentsError({this.message = ''});
+}
+
+class RemoteFeedError implements CoursesFailure {
+  @override
+  final String message;
+  RemoteFeedError({this.message = ''});
 }

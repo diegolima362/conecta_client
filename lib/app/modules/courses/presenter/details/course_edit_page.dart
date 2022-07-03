@@ -4,7 +4,7 @@ import 'package:conecta/app/modules/auth/domain/usecases/get_logged_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
-import './course_edit_store.dart';
+import 'course_details_store.dart';
 
 class CourseEditPage extends StatefulWidget {
   final int? courseId;
@@ -16,7 +16,7 @@ class CourseEditPage extends StatefulWidget {
 
 class _CourseEditPageState extends State<CourseEditPage> {
   late final TextEditingController titleController;
-  late final CourseEditStore store;
+  late final CourseDetailsStore store;
 
   late final ValueNotifier<bool> filled;
 
@@ -32,8 +32,8 @@ class _CourseEditPageState extends State<CourseEditPage> {
 
     if (widget.courseId != null) {
       store.getData(widget.courseId!).then(
-            (value) =>
-                titleController.text = store.state.toNullable()?.name ?? '',
+            (value) => titleController.text =
+                store.state.course.toNullable()?.name ?? '',
           );
     }
   }
@@ -98,14 +98,14 @@ class _CourseEditPageState extends State<CourseEditPage> {
   Future<void> submit(String title) async {
     if (title.isNotEmpty) {
       if (widget.courseId != null) {
-        store.edit(titleController.text);
+        store.editCourse(titleController.text);
       } else {
         final user = await Modular.get<IGetLoggedUser>()();
 
         final id = user.fold((l) => 0, (r) => r.toNullable()?.id ?? 0);
 
         if (id != 0) {
-          store.create(titleController.text, id);
+          store.createCourse(titleController.text, id);
         }
       }
     }

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_triple/flutter_triple.dart';
 
-import '../details/course_details_store.dart';
+import 'registrations_store.dart';
 
 class RegistrationsPage extends StatefulWidget {
   const RegistrationsPage({super.key});
@@ -15,20 +15,27 @@ class RegistrationsPage extends StatefulWidget {
 }
 
 class _RegistrationsPageState extends State<RegistrationsPage> {
-  late final CourseDetailsStore store;
+  late final RegistrationsStore store;
 
   @override
   void initState() {
     super.initState();
     store = Modular.get();
+    final courseId = int.tryParse(Modular.to.path
+            .split('/courses/')
+            .last
+            .split('/registrations/')
+            .first) ??
+        0;
+    store.getData(courseId);
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
-        body: ScopedBuilder<CourseDetailsStore, AppContentFailure,
-            CoursetDetailsState>(
+        body: ScopedBuilder<RegistrationsStore, AppContentFailure,
+            RegistrationsState>(
           store: store,
           onLoading: (_) => const LoadingIndicator(),
           onError: (_, error) => EmptyCollection.error(message: ''),
@@ -39,6 +46,8 @@ class _RegistrationsPageState extends State<RegistrationsPage> {
                 icon: Icons.person_off_outlined,
               );
             }
+
+            final isOwner = store.isOwner;
 
             return ArticleContent(
               child: ListView.builder(
@@ -54,6 +63,18 @@ class _RegistrationsPageState extends State<RegistrationsPage> {
                     ),
                     title: Text(registration.studentName),
                     subtitle: Text(registration.studentEmail),
+                    trailing: isOwner
+                        ? IconButton(
+                            onPressed: () async {
+                              await store.removePerson(
+                                state.course.toNullable()!.id,
+                                registration.id,
+                              );
+                            },
+                            icon: const Icon(Icons.person_remove),
+                            tooltip: 'Remover Aluno',
+                          )
+                        : null,
                   );
                 },
               ),

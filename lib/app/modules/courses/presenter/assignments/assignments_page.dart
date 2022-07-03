@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_triple/flutter_triple.dart';
 
-import '../details/course_details_store.dart';
+import 'assignments_store.dart';
 
 class AssignmentsPage extends StatefulWidget {
   const AssignmentsPage({super.key});
@@ -15,31 +15,44 @@ class AssignmentsPage extends StatefulWidget {
 }
 
 class _AssignmentsPageState extends State<AssignmentsPage> {
-  late final CourseDetailsStore store;
+  late final AssignmentsStore store;
 
   @override
   void initState() {
     super.initState();
     store = Modular.get();
-    if (!Modular.to.path.endsWith('assignments/')) {
-      store.jumpToPage(1);
-    }
+
+    final courseId = int.tryParse(Modular.to.path
+            .split('/courses/')
+            .last
+            .split('/assignments/')
+            .first) ??
+        0;
+    store.getData(courseId);
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
-        floatingActionButton: Visibility(
-          visible: true,
-          child: FloatingActionButton(
-            tooltip: 'Adicionar Atividade',
-            onPressed: () {},
-            child: const Icon(Icons.add),
+        floatingActionButton: AnimatedBuilder(
+          animation: store.selectState,
+          builder: (context, _) => Visibility(
+            visible: store.isOwner,
+            child: FloatingActionButton(
+              tooltip: 'Criar Atividade',
+              onPressed: () {
+                Modular.to.pushNamed(
+                  '/app/courses/${store.state.course.toNullable()?.id ?? 0}/assignments/edit/',
+                  forRoot: true,
+                );
+              },
+              child: const Icon(Icons.add),
+            ),
           ),
         ),
-        body: ScopedBuilder<CourseDetailsStore, AppContentFailure,
-            CoursetDetailsState>(
+        body: ScopedBuilder<AssignmentsStore, AppContentFailure,
+            AssignmentsStoreState>(
           store: store,
           onLoading: (_) => const LoadingIndicator(),
           onError: (_, error) => EmptyCollection.error(message: ''),
@@ -52,28 +65,26 @@ class _AssignmentsPageState extends State<AssignmentsPage> {
             }
 
             return ArticleContent(
-              child: ListView.separated(
+              child: ListView.builder(
                 itemCount: state.assignments.length,
-                separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
                   final assignment = state.assignments[index];
 
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      onTap: () {
-                        Modular.to.pushNamed(
-                          './details/',
-                          arguments: assignment,
-                        );
-                      },
-                      child: OutlinedCard(
-                        child: ListTile(
-                          title: Text(assignment.title),
-                          subtitle:
-                              Text('Entrega: ${assignment.dueDate.fullDate}'),
-                        ),
-                      ),
+                  return ListTile(
+                    onTap: () {
+                      Modular.to.pushNamed(
+                        '/app/courses/${assignment.courseId}/assignments/details/',
+                        arguments: [assignment, store.isOwner],
+                        forRoot: true,
+                      );
+                    },
+                    leading: CircleAvatar(
+                      backgroundColor: context.colors.primary,
+                      child: const Icon(Icons.assignment_outlined),
+                    ),
+                    title: Text(assignment.title),
+                    subtitle: Text(
+                      'Data de entrega: ${assignment.dueDate.fullDate}',
                     ),
                   );
                 },

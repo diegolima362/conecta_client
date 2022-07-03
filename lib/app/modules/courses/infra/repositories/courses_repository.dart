@@ -50,7 +50,7 @@ class CoursesRepository implements ICoursesRepository {
   }
 
   @override
-  Future<EitherCourses> getCourses({String? id, bool cached = true}) async {
+  Future<EitherCourses> getCourses({bool cached = true}) async {
     final courses = <CourseEntity>[];
 
     if (cached) {
@@ -58,7 +58,7 @@ class CoursesRepository implements ICoursesRepository {
         return Right(coursesCache);
       } else {
         try {
-          final result = (await localData.getCourses(id: id));
+          final result = (await localData.getCourses());
           courses.addAll(result);
           coursesCache.clear();
           coursesCache.addAll(result);
@@ -71,14 +71,14 @@ class CoursesRepository implements ICoursesRepository {
     if (courses.isEmpty || !await updated) {
       try {
         if (courses.isEmpty) {
-          final result = await remoteData.getCourses(id: id);
+          final result = await remoteData.getCourses();
           await localData.saveCourses(result);
           courses.addAll(result);
 
           coursesCache.clear();
           coursesCache.addAll(result);
         } else {
-          remoteData.getCourses(id: id).then(
+          remoteData.getCourses().then(
             (r) async {
               coursesCache.clear();
 
@@ -128,31 +128,9 @@ class CoursesRepository implements ICoursesRepository {
   }
 
   @override
-  Future<EitherFeed> getCourseFeed(int courseId) async {
-    try {
-      final result = await remoteData.getCourseFeed(courseId);
-
-      return Right(result);
-    } on CoursesFailure catch (e) {
-      return Left(e);
-    }
-  }
-
-  @override
   Future<EitherRegistrations> getCourseRegistrations(int courseId) async {
     try {
       final result = await remoteData.getCourseRegistrations(courseId);
-
-      return Right(result);
-    } on CoursesFailure catch (e) {
-      return Left(e);
-    }
-  }
-
-  @override
-  Future<EitherAssignments> getCourseAssignments(int courseId) async {
-    try {
-      final result = await remoteData.getCourseAssignments(courseId);
 
       return Right(result);
     } on CoursesFailure catch (e) {
@@ -186,6 +164,28 @@ class CoursesRepository implements ICoursesRepository {
   Future<EitherUnit> removeStudent(int courseId, int registerId) async {
     try {
       await remoteData.removeStudent(courseId, registerId);
+
+      return const Right(unit);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<EitherUnit> removePerson(int courseId, int registrationId) async {
+    try {
+      await remoteData.removePerson(courseId, registrationId);
+
+      return const Right(unit);
+    } on CoursesFailure catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<EitherUnit> leaveCourse(int courseId) async {
+    try {
+      await remoteData.leaveCourse(courseId);
 
       return const Right(unit);
     } on CoursesFailure catch (e) {

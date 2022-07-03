@@ -14,6 +14,11 @@ class CoursesLocalDatasource implements ICoursesLocalDatasource {
   }
 
   @override
+  Future<CourseModel> getCourse(int courseId) async {
+    return _courses.firstWhere((c) => c.id == courseId);
+  }
+
+  @override
   Future<Unit> saveCourses(List<CourseModel> courses) async {
     _courses.clear();
     _courses.addAll(courses);

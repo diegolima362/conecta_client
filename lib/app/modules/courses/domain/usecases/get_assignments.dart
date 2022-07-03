@@ -1,4 +1,4 @@
-import '../repositories/courses_repository.dart';
+import '../repositories/assignments_repository.dart';
 import '../types/types.dart';
 
 abstract class IGetCourseAssignments {
@@ -6,7 +6,7 @@ abstract class IGetCourseAssignments {
 }
 
 class GetCourseAssignments implements IGetCourseAssignments {
-  final ICoursesRepository repository;
+  final IAssignmentsRepository repository;
 
   GetCourseAssignments(this.repository);
 

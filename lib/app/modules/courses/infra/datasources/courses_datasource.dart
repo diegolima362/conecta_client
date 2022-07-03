@@ -3,7 +3,9 @@ import 'package:fpdart/fpdart.dart';
 import '../models/models.dart';
 
 abstract class ICoursesDatasource {
-  Future<List<CourseModel>> getCourses({String? id});
+  Future<List<CourseModel>> getCourses();
+
+  Future<CourseModel> getCourse(int courseId);
 }
 
 abstract class ICoursesLocalDatasource extends ICoursesDatasource {
@@ -21,11 +23,11 @@ abstract class ICoursesRemoteDatasource extends ICoursesDatasource {
 
   Future<Unit> joinCourse(String code);
 
-  Future<List<PostModel>> getCourseFeed(int courseId);
+  Future<Unit> leaveCourse(int courseId);
+
+  Future<Unit> removePerson(int courseId, int registrationId);
 
   Future<List<RegistrationModel>> getCourseRegistrations(int courseId);
-
-  Future<List<AssignmentModel>> getCourseAssignments(int courseId);
 
   Future<Unit> editCourse(int id, String name);
 
