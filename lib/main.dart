@@ -9,6 +9,7 @@ import 'app/app_module.dart';
 import 'app/app_widget.dart';
 
 const debugLayoutMode = false;
+const devMode = false;
 
 late final SharedPreferences prefs;
 
@@ -25,18 +26,6 @@ Future<void> main() async {
       child: const AppWidget(),
     ),
   );
-
-  // runApp(
-  //   DevicePreview(
-  //     enabled: debugLayoutMode,
-  //     builder: (BuildContext context) {
-  //       return ModularApp(
-  //         module: AppModule(),
-  //         child: const AppWidget(),
-  //       );
-  //     },
-  //   ),
-  // );
 }
 
 Future<void> initialization() async {
